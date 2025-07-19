@@ -35,6 +35,7 @@
           seaborn
           ipykernel
           chex
+          optax
         ]
       );
     in
