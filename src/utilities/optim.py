@@ -1,4 +1,45 @@
+import jax.numpy as jnp
 import numpy as np
+from jax import jit, tree, value_and_grad
+
+from utilities.spatial import project_on_graph, tree_norm
+
+
+def ball_trajectory(
+    loss_fn,
+    params0,
+    radius=0.5,
+    n_steps=100,
+    learning_rate=0.1,
+    projection_step_size=0.01,
+    n_projection_steps=10,
+):
+    @jit
+    def update(params):
+        value_and_grad_fn = value_and_grad(loss_fn)
+        fx, grads = value_and_grad_fn(params)
+        g2 = tree_norm(grads) ** 2
+        normal = (tree.map(lambda g: -g, grads), 1.0)
+        normal = tree.map(lambda n: n / jnp.sqrt(g2 + 1), normal)
+        tangent = (grads, g2)
+
+        center = tree.map(lambda p, n: p + radius * n, (params, fx), normal)
+        candidate = tree.map(lambda u, v: u - learning_rate * v, center, tangent)
+        footpoint = project_on_graph(
+            value_and_grad_fn,
+            candidate,
+            x0=params,
+            step_size=projection_step_size,
+            n_steps=n_projection_steps,
+        )
+        return footpoint
+
+    trajectory = [params0]
+    for _ in range(n_steps):
+        params = trajectory[-1]
+        params = update(params)
+        trajectory.append(params)
+    return trajectory
 
 
 def rolling_ball_trajectory(
