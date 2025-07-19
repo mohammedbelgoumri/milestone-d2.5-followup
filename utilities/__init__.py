@@ -1,1 +1,0 @@
-from .weirstrass import main
