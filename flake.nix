@@ -10,19 +10,33 @@
     let
       system = "x86_64-linux";
       pkgs = import nixpkgs { inherit system; };
+      python = pkgs.python312;
+      utils = python.pkgs.buildPythonPackage {
+        name = "utils";
+        version = "0.0.0";
+        src = ./utilities;
+        buildInputs = with python.pkgs; [
+          setuptools
+          wheel
+        ];
+        pyproject = true;
+      };
+      python-with-packages = python.withPackages (
+        p: with p; [
+          utils
+          jax
+          flax
+          numpy
+          seaborn
+          ipykernel
+        ]
+      );
     in
     {
       devShells."${system}".default = pkgs.mkShell {
         name = "D2.5";
-        packages = with pkgs; [
-          (python312.withPackages (
-            ps: with ps; [
-              jax
-              flax
-              numpy
-              seaborn
-            ]
-          ))
+        buildInputs = [
+          python-with-packages
         ];
       };
     };
