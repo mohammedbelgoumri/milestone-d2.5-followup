@@ -9,12 +9,18 @@
     { self, nixpkgs }:
     let
       system = "x86_64-linux";
-      pkgs = import nixpkgs { inherit system; };
+      pkgs = import nixpkgs {
+        inherit system;
+        configuration = {
+          allowUnfree = true;
+          cudaSupport = true;
+        };
+      };
       python = pkgs.python312;
       utils = python.pkgs.buildPythonPackage {
-        name = "utils";
-        version = "0.0.0";
-        src = ./utilities;
+        name = "utilities";
+        version = "0.1.0";
+        src = ./src;
         buildInputs = with python.pkgs; [
           setuptools
           wheel
@@ -25,10 +31,10 @@
         p: with p; [
           utils
           jax
-          flax
           numpy
           seaborn
           ipykernel
+          chex
         ]
       );
     in
