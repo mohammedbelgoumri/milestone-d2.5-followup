@@ -40,7 +40,7 @@ def main():
     x = np.linspace(0, 2.1, 1000)
     y = loss_fn(x)
 
-    fig, ax = plt.subplots(ncols=n_radii + 1, figsize=(20, 5))
+    fig, ax = plt.subplots(ncols=n_radii + 1, figsize=(20, 5), sharey=True, sharex=True)
 
     for i, config in enumerate(zip(*configs.values())):
         lr, radius, n_epochs, n_projections, projection_step, initial = config
