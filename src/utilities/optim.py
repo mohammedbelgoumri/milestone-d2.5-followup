@@ -1,25 +1,12 @@
-import jax.numpy as jnp
-import matplotlib.pyplot as plt
 import numpy as np
-
-# import seaborn as sns
-
-n = 100
-
-
-def loss_fn(x):
-    return np.sum([np.sin(i**2 * x) / i**2 for i in range(1, n + 1)], axis=0)
-    # return x**2
-
-
-def grad_fn(x):
-    return np.sum([np.cos(i**2 * x) / i**2 for i in range(1, n + 1)], axis=0)
-    # return 2 * x
 
 
 def rolling_ball_trajectory(
     value_and_grad_fn, lr, radius, n_epochs, n_projections, projection_step, initial=2.0
 ):
+    """
+    This function retruns RBO trajectory for a given (1-D) loss function.
+    """
     params = [initial]
     centers = []
     for epoch in range(n_epochs):
@@ -45,64 +32,3 @@ def rolling_ball_trajectory(
     params = np.array(params)
     centers = np.array(centers)
     return params, centers
-
-
-def main():
-    lr = 0.001
-    radius = 0.3
-    n_epochs = 2000
-    n_projections = 20
-    projection_step = 0.05
-    n_radii = 5
-    configs = {
-        "lr": [lr] * n_radii,
-        "radius": np.logspace(-2, 0, n_radii),
-        "n_epochs": [n_epochs] * n_radii,
-        "n_projections": [n_projections] * n_radii,
-        "projection_step": [projection_step] * n_radii,
-    }
-
-    configs = [{k: v[i] for k, v in configs.items()} for i in range(n_radii)]
-
-    # sns.set_theme("paper")
-    plt.rcParams.update({"mathtext.fontset": "cm"})
-    x = np.linspace(0, 2.1, 1000)
-    y = loss_fn(x)
-    # fig, ax = plt.subplots(ncols=n_radii + 1)
-    # plt.axis("equal")
-
-    for i, config in enumerate(configs):
-        fig = plt.figure()
-        ax = fig.add_subplot()
-        xs, centers = get_points(**config)
-        ax.plot(centers[:, 0], centers[:, 1])
-        # ax[i + 1].set_xlabel(r"$\theta$")
-        # ax[i + 1].set_ylabel(r"$f(\theta)$")
-        # ax[(i + 1) // 2, (i + 1) % 2].legend()
-        ax.set_title(f"Radius = {config['radius']:.4f}", fontsize=30)
-        for label in ax.get_xticklabels() + ax.get_yticklabels():
-            label.set_fontsize(20)
-        plt.tight_layout()
-        # ax.set_aspect("equal")
-        plt.savefig(f"smoothingt{i}.pdf")
-
-    fig = plt.figure()
-    ax = fig.add_subplot()
-    for label in ax.get_xticklabels() + ax.get_yticklabels():
-        label.set_fontsize(20)
-    ax.plot(x, y)
-
-    # ax[0].set_xlabel(r"$\theta$", fontsize=16)
-    # ax[0].set_ylabel(r"$f(\theta)$", fontsize=16)
-    # ax[0, 0].legend()
-    ax.set_title("Original landscape", fontsize=30)
-    plt.tight_layout()
-    ax.set_aspect("equal")
-    # plt.title("Loss function")
-    # plt.tight_layout()
-    plt.savefig("original.pdf")
-    # plt.show()
-
-
-if __name__ == "__main__":
-    main()
