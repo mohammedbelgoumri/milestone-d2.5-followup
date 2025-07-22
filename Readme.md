@@ -15,8 +15,8 @@ While standard optimizers like SGD and Adam behave like point-particles, RBO beh
 To install the package, run the following command:
 
 ```bash
-git clone https://github.com/mohammedbelgoumri/milestone-d2.5-followup.git
-cd milestone-d2.5-followup
+git clone https://github.com/rbouadjenek/milestone-d1.2-followup.git
+cd milestone-d1.2-followup
 nix develop --impure # or cd src && pip install -e . if you don't have nix installed
 ```
 
